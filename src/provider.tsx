@@ -74,6 +74,8 @@ export function AuthKitProvider(props: AuthKitProviderProps) {
         if (e.origin !== window.location.origin) return
         if (e.data.type !== "WORKOS_AUTH_SUCCESS") return 
         if (!childWindow) return 
+
+        console.log("INITIALIZE CLIENT AGAIN")
   
         await initializeClient()
   
@@ -102,6 +104,7 @@ export function AuthKitProvider(props: AuthKitProviderProps) {
   }
 
   const initializeClient = () => {
+    console.log("INITIALIZE CLIENT 1")
     createClient(clientId, {
       apiHostname,
       port,

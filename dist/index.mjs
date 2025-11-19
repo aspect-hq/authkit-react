@@ -131,6 +131,7 @@ function AuthKitProvider(props) {
         if (e.origin !== window.location.origin) return;
         if (e.data.type !== "WORKOS_AUTH_SUCCESS") return;
         if (!childWindow) return;
+        console.log("INITIALIZE CLIENT AGAIN");
         yield initializeClient();
         clearInterval(intervalHandle);
         childWindow.close();
@@ -151,6 +152,7 @@ function AuthKitProvider(props) {
     });
   });
   const initializeClient = () => {
+    console.log("INITIALIZE CLIENT 1");
     createClient(clientId, {
       apiHostname,
       port,
