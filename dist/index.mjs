@@ -93,6 +93,7 @@ function AuthKitProvider(props) {
   } = props;
   const [client, setClient] = React3.useState(NOOP_CLIENT);
   const [state, setState] = React3.useState(initialState);
+  console.log("PROVIDER WEEEEE");
   const handleRefresh = React3.useCallback(
     (response) => {
       const {

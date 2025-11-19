@@ -33,6 +33,8 @@ export function AuthKitProvider(props: AuthKitProviderProps) {
   const [client, setClient] = React.useState<Client>(NOOP_CLIENT);
   const [state, setState] = React.useState(initialState);
 
+  console.log("PROVIDER WEEEEE")
+
   const handleRefresh = React.useCallback(
     (response: OnRefreshResponse) => {
       const {
