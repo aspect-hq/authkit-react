@@ -73,7 +73,7 @@ export function AuthKitProvider(props: AuthKitProviderProps) {
       console.log("CHILD WINDOW", childWindow)
   
       const handleChildMessage = async (e: MessageEvent) => {
-        console.log("HANDLE CHILD MESSAGE", e, childWindow)
+        console.log("HANDLE CHILD MESSAGE", e, childWindow, e.origin, window.location.origin, e.data.type)
         if (e.origin !== window.location.origin) return
         if (e.data.type !== "WORKOS_AUTH_SUCCESS") return 
         if (!childWindow) return 
@@ -83,7 +83,7 @@ export function AuthKitProvider(props: AuthKitProviderProps) {
         await initializeClient()
   
         clearInterval(intervalHandle)
-        childWindow.close()
+        // childWindow.close()
   
         window.removeEventListener("message", handleChildMessage)
   

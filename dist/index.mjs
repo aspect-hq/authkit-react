@@ -130,14 +130,13 @@ function AuthKitProvider(props) {
       const childWindow = window.open(separateTabUrl, "_blank");
       console.log("CHILD WINDOW", childWindow);
       const handleChildMessage = (e) => __async(this, null, function* () {
-        console.log("HANDLE CHILD MESSAGE", e, childWindow);
+        console.log("HANDLE CHILD MESSAGE", e, childWindow, e.origin, window.location.origin, e.data.type);
         if (e.origin !== window.location.origin) return;
         if (e.data.type !== "WORKOS_AUTH_SUCCESS") return;
         if (!childWindow) return;
         console.log("INITIALIZE CLIENT AGAIN");
         yield initializeClient();
         clearInterval(intervalHandle);
-        childWindow.close();
         window.removeEventListener("message", handleChildMessage);
         resolve();
       });
