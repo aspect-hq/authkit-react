@@ -124,7 +124,7 @@ function AuthKitProvider(props) {
   } = props;
   const [client, setClient] = React3.useState(NOOP_CLIENT);
   const [state, setState] = React3.useState(initialState);
-  console.log("PROVIDER WEEEEE");
+  console.log("PROVIDER WEEEEE wat");
   const handleRefresh = React3.useCallback(
     (response) => {
       const {
@@ -157,6 +157,7 @@ function AuthKitProvider(props) {
   );
   React3.useEffect(() => {
     function initialize() {
+      console.log("INITIALIZING WEEEEE authkit");
       const timeoutId = setTimeout(() => {
         (0, import_authkit_js.createClient)(clientId, {
           apiHostname,

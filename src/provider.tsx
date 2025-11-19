@@ -33,7 +33,7 @@ export function AuthKitProvider(props: AuthKitProviderProps) {
   const [client, setClient] = React.useState<Client>(NOOP_CLIENT);
   const [state, setState] = React.useState(initialState);
 
-  console.log("PROVIDER WEEEEE")
+  console.log("PROVIDER WEEEEE wat")
 
   const handleRefresh = React.useCallback(
     (response: OnRefreshResponse) => {
@@ -69,6 +69,7 @@ export function AuthKitProvider(props: AuthKitProviderProps) {
 
   React.useEffect(() => {
     function initialize() {
+      console.log("INITIALIZING WEEEEE authkit")
       const timeoutId = setTimeout(() => {
         createClient(clientId, {
           apiHostname,
