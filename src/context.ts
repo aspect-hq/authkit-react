@@ -5,7 +5,7 @@ import { Client } from "./types";
 import { State, initialState } from "./state";
 
 export interface ContextValue extends Client, State {
-  authWithSeparateTab: (options: { separateTabUrl: string }) => Promise<void>;
+  authWithSeparateTab: (options: { separateTabUrl: string }) => Promise<Client>;
   refreshClient: () => void;
 }
 

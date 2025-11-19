@@ -162,11 +162,11 @@ function AuthKitProvider(props) {
         if (e.origin !== window.location.origin) return;
         if (e.data.type !== "WORKOS_AUTH_SUCCESS") return;
         if (!childWindow) return;
-        yield refreshClient();
+        const client2 = yield refreshClient();
         clearInterval(intervalHandle);
         childWindow.close();
         window.removeEventListener("message", handleChildMessage);
-        resolve();
+        resolve(client2);
       });
       if (childWindow) {
         intervalHandle = setInterval(() => {
@@ -178,11 +178,10 @@ function AuthKitProvider(props) {
         }, 500);
         window.addEventListener("message", handleChildMessage);
       }
-      resolve();
     });
   });
-  const refreshClient = () => {
-    (0, import_authkit_js.createClient)(clientId, {
+  const refreshClient = () => __async(this, null, function* () {
+    const client2 = yield (0, import_authkit_js.createClient)(clientId, {
       apiHostname,
       port,
       https,
@@ -192,19 +191,19 @@ function AuthKitProvider(props) {
       onRefresh: handleRefresh,
       onRefreshFailure,
       refreshBufferInterval
-    }).then((client2) => __async(this, null, function* () {
-      const user = client2.getUser();
-      setClient({
-        getAccessToken: client2.getAccessToken.bind(client2),
-        getUser: client2.getUser.bind(client2),
-        signIn: client2.signIn.bind(client2),
-        signUp: client2.signUp.bind(client2),
-        signOut: client2.signOut.bind(client2),
-        switchToOrganization: client2.switchToOrganization.bind(client2)
-      });
-      setState((prev) => __spreadProps(__spreadValues({}, prev), { isLoading: false, user }));
-    }));
-  };
+    });
+    const user = client2.getUser();
+    setClient({
+      getAccessToken: client2.getAccessToken.bind(client2),
+      getUser: client2.getUser.bind(client2),
+      signIn: client2.signIn.bind(client2),
+      signUp: client2.signUp.bind(client2),
+      signOut: client2.signOut.bind(client2),
+      switchToOrganization: client2.switchToOrganization.bind(client2)
+    });
+    setState((prev) => __spreadProps(__spreadValues({}, prev), { isLoading: false, user }));
+    return client2;
+  });
   React3.useEffect(() => {
     setClient(NOOP_CLIENT);
     setState(initialState);

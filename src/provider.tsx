@@ -65,8 +65,8 @@ export function AuthKitProvider(props: AuthKitProviderProps) {
     [client],
   );
 
-  const authWithSeparateTab = async ({ separateTabUrl }: { separateTabUrl: string }): Promise<void> => {
-    return new Promise((resolve, reject) => {
+  const authWithSeparateTab = async ({ separateTabUrl }: { separateTabUrl: string }): Promise<Client> => {
+    return new Promise<Client>((resolve, reject) => {
       let intervalHandle: any = null
       const childWindow = window.open(separateTabUrl, "_blank")
   
@@ -75,14 +75,14 @@ export function AuthKitProvider(props: AuthKitProviderProps) {
         if (e.data.type !== "WORKOS_AUTH_SUCCESS") return 
         if (!childWindow) return 
   
-        await refreshClient()
+        const client = await refreshClient()
   
         clearInterval(intervalHandle)
         childWindow.close()
   
         window.removeEventListener("message", handleChildMessage)
   
-        resolve()
+        resolve(client)
       }
   
       if (childWindow) {
@@ -96,13 +96,11 @@ export function AuthKitProvider(props: AuthKitProviderProps) {
   
         window.addEventListener("message", handleChildMessage)
       }
-
-      resolve()
     })
   }
 
-  const refreshClient = () => {
-    createClient(clientId, {
+  const refreshClient = async () => {
+    const client = await createClient(clientId, {
       apiHostname,
       port,
       https,
@@ -112,18 +110,19 @@ export function AuthKitProvider(props: AuthKitProviderProps) {
       onRefresh: handleRefresh,
       onRefreshFailure,
       refreshBufferInterval,
-    }).then(async (client) => {
-      const user = client.getUser();
-      setClient({
-        getAccessToken: client.getAccessToken.bind(client),
-        getUser: client.getUser.bind(client),
-        signIn: client.signIn.bind(client),
-        signUp: client.signUp.bind(client),
-        signOut: client.signOut.bind(client),
-        switchToOrganization: client.switchToOrganization.bind(client),
-      });
-      setState((prev) => ({ ...prev, isLoading: false, user }));
+    })
+
+    const user = client.getUser();
+    setClient({
+      getAccessToken: client.getAccessToken.bind(client),
+      getUser: client.getUser.bind(client),
+      signIn: client.signIn.bind(client),
+      signUp: client.signUp.bind(client),
+      signOut: client.signOut.bind(client),
+      switchToOrganization: client.switchToOrganization.bind(client),
     });
+    setState((prev) => ({ ...prev, isLoading: false, user }));
+    return client;
   }
 
   React.useEffect(() => {
