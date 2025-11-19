@@ -33,8 +33,6 @@ export function AuthKitProvider(props: AuthKitProviderProps) {
   const [client, setClient] = React.useState<Client>(NOOP_CLIENT);
   const [state, setState] = React.useState(initialState);
 
-  console.log("PROVIDER WEEEEE wat")
-
   const handleRefresh = React.useCallback(
     (response: OnRefreshResponse) => {
       const {
@@ -67,47 +65,86 @@ export function AuthKitProvider(props: AuthKitProviderProps) {
     [client],
   );
 
-  React.useEffect(() => {
-    function initialize() {
-      console.log("INITIALIZING WEEEEE authkit")
-      const timeoutId = setTimeout(() => {
-        createClient(clientId, {
-          apiHostname,
-          port,
-          https,
-          redirectUri,
-          devMode,
-          onRedirectCallback,
-          onRefresh: handleRefresh,
-          onRefreshFailure,
-          refreshBufferInterval,
-        }).then(async (client) => {
-          const user = client.getUser();
-          setClient({
-            getAccessToken: client.getAccessToken.bind(client),
-            getUser: client.getUser.bind(client),
-            signIn: client.signIn.bind(client),
-            signUp: client.signUp.bind(client),
-            signOut: client.signOut.bind(client),
-            switchToOrganization: client.switchToOrganization.bind(client),
-          });
-          setState((prev) => ({ ...prev, isLoading: false, user }));
-        });
+  const signInWithSeparateTab = async ({ separateTabUrl }: { separateTabUrl: string }): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      let intervalHandle: any = null
+      const childWindow = window.open(separateTabUrl, "_blank")
+  
+      const handleChildMessage = async (e: MessageEvent) => {
+        if (e.origin !== window.location.origin) return
+        if (e.data.type !== "WORKOS_AUTH_SUCCESS") return 
+        if (!childWindow) return 
+  
+        await initializeClient()
+  
+        clearInterval(intervalHandle)
+        childWindow.close()
+  
+        window.removeEventListener("message", handleChildMessage)
+  
+        resolve()
+      }
+  
+      if (childWindow) {
+        intervalHandle = setInterval(() => {
+          if (childWindow?.closed) {
+            clearInterval(intervalHandle)
+            window.removeEventListener("message", handleChildMessage)
+            reject()
+          }
+        }, 500)
+  
+        window.addEventListener("message", handleChildMessage)
+      }
+
+      resolve()
+    })
+  }
+
+  const initializeClient = () => {
+    createClient(clientId, {
+      apiHostname,
+      port,
+      https,
+      redirectUri,
+      devMode,
+      onRedirectCallback,
+      onRefresh: handleRefresh,
+      onRefreshFailure,
+      refreshBufferInterval,
+    }).then(async (client) => {
+      const user = client.getUser();
+      setClient({
+        getAccessToken: client.getAccessToken.bind(client),
+        getUser: client.getUser.bind(client),
+        signIn: client.signIn.bind(client),
+        signUp: client.signUp.bind(client),
+        signOut: client.signOut.bind(client),
+        switchToOrganization: client.switchToOrganization.bind(client),
       });
+      setState((prev) => ({ ...prev, isLoading: false, user }));
+    });
+  }
 
-      return () => {
-        clearTimeout(timeoutId);
-      };
-    }
-
+  React.useEffect(() => {
     setClient(NOOP_CLIENT);
     setState(initialState);
 
-    return initialize();
+    const timeoutId = setTimeout(() => {
+      initializeClient();
+    });
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
   }, [clientId, apiHostname, https, port, redirectUri, refreshBufferInterval]);
 
   return (
-    <Context.Provider value={{ ...client, ...state }}>
+    <Context.Provider value={{ 
+      ...client, 
+      ...state,
+      signInWithSeparateTab,
+    }}>
       {children}
     </Context.Provider>
   );

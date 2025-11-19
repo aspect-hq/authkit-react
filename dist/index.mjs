@@ -93,7 +93,6 @@ function AuthKitProvider(props) {
   } = props;
   const [client, setClient] = React3.useState(NOOP_CLIENT);
   const [state, setState] = React3.useState(initialState);
-  console.log("PROVIDER WEEEEE wat");
   const handleRefresh = React3.useCallback(
     (response) => {
       const {
@@ -124,42 +123,70 @@ function AuthKitProvider(props) {
     },
     [client]
   );
-  React3.useEffect(() => {
-    function initialize() {
-      console.log("INITIALIZING WEEEEE authkit");
-      const timeoutId = setTimeout(() => {
-        createClient(clientId, {
-          apiHostname,
-          port,
-          https,
-          redirectUri,
-          devMode,
-          onRedirectCallback,
-          onRefresh: handleRefresh,
-          onRefreshFailure,
-          refreshBufferInterval
-        }).then((client2) => __async(this, null, function* () {
-          const user = client2.getUser();
-          setClient({
-            getAccessToken: client2.getAccessToken.bind(client2),
-            getUser: client2.getUser.bind(client2),
-            signIn: client2.signIn.bind(client2),
-            signUp: client2.signUp.bind(client2),
-            signOut: client2.signOut.bind(client2),
-            switchToOrganization: client2.switchToOrganization.bind(client2)
-          });
-          setState((prev) => __spreadProps(__spreadValues({}, prev), { isLoading: false, user }));
-        }));
+  const signInWithSeparateTab = (_0) => __async(this, [_0], function* ({ separateTabUrl }) {
+    return new Promise((resolve, reject) => {
+      let intervalHandle = null;
+      const childWindow = window.open(separateTabUrl, "_blank");
+      const handleChildMessage = (e) => __async(this, null, function* () {
+        if (e.origin !== window.location.origin) return;
+        if (e.data.type !== "WORKOS_AUTH_SUCCESS") return;
+        if (!childWindow) return;
+        yield initializeClient();
+        clearInterval(intervalHandle);
+        childWindow.close();
+        window.removeEventListener("message", handleChildMessage);
+        resolve();
       });
-      return () => {
-        clearTimeout(timeoutId);
-      };
-    }
+      if (childWindow) {
+        intervalHandle = setInterval(() => {
+          if (childWindow == null ? void 0 : childWindow.closed) {
+            clearInterval(intervalHandle);
+            window.removeEventListener("message", handleChildMessage);
+            reject();
+          }
+        }, 500);
+        window.addEventListener("message", handleChildMessage);
+      }
+      resolve();
+    });
+  });
+  const initializeClient = () => {
+    createClient(clientId, {
+      apiHostname,
+      port,
+      https,
+      redirectUri,
+      devMode,
+      onRedirectCallback,
+      onRefresh: handleRefresh,
+      onRefreshFailure,
+      refreshBufferInterval
+    }).then((client2) => __async(this, null, function* () {
+      const user = client2.getUser();
+      setClient({
+        getAccessToken: client2.getAccessToken.bind(client2),
+        getUser: client2.getUser.bind(client2),
+        signIn: client2.signIn.bind(client2),
+        signUp: client2.signUp.bind(client2),
+        signOut: client2.signOut.bind(client2),
+        switchToOrganization: client2.switchToOrganization.bind(client2)
+      });
+      setState((prev) => __spreadProps(__spreadValues({}, prev), { isLoading: false, user }));
+    }));
+  };
+  React3.useEffect(() => {
     setClient(NOOP_CLIENT);
     setState(initialState);
-    return initialize();
+    const timeoutId = setTimeout(() => {
+      initializeClient();
+    });
+    return () => {
+      clearTimeout(timeoutId);
+    };
   }, [clientId, apiHostname, https, port, redirectUri, refreshBufferInterval]);
-  return /* @__PURE__ */ React3.createElement(Context.Provider, { value: __spreadValues(__spreadValues({}, client), state) }, children);
+  return /* @__PURE__ */ React3.createElement(Context.Provider, { value: __spreadProps(__spreadValues(__spreadValues({}, client), state), {
+    signInWithSeparateTab
+  }) }, children);
 }
 function isEquivalentWorkOSSession(a, b) {
   var _a, _b, _c, _d, _e, _f;

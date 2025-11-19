@@ -21,6 +21,9 @@ interface State {
 }
 
 interface ContextValue extends Client, State {
+    signInWithSeparateTab: (options: {
+        separateTabUrl: string;
+    }) => Promise<void>;
 }
 
 declare function useAuth(): ContextValue;
