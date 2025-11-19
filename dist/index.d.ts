@@ -21,7 +21,7 @@ interface State {
 }
 
 interface ContextValue extends Client, State {
-    signInWithSeparateTab: (options: {
+    authWithSeparateTab: (options: {
         separateTabUrl: string;
     }) => Promise<void>;
     refreshClient: () => void;

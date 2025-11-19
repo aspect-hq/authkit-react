@@ -123,7 +123,7 @@ function AuthKitProvider(props) {
     },
     [client]
   );
-  const signInWithSeparateTab = (_0) => __async(this, [_0], function* ({ separateTabUrl }) {
+  const authWithSeparateTab = (_0) => __async(this, [_0], function* ({ separateTabUrl }) {
     return new Promise((resolve, reject) => {
       let intervalHandle = null;
       const childWindow = window.open(separateTabUrl, "_blank");
@@ -185,7 +185,7 @@ function AuthKitProvider(props) {
     };
   }, [clientId, apiHostname, https, port, redirectUri, refreshBufferInterval]);
   return /* @__PURE__ */ React3.createElement(Context.Provider, { value: __spreadProps(__spreadValues(__spreadValues({}, client), state), {
-    signInWithSeparateTab,
+    authWithSeparateTab,
     refreshClient
   }) }, children);
 }

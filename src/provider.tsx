@@ -65,7 +65,7 @@ export function AuthKitProvider(props: AuthKitProviderProps) {
     [client],
   );
 
-  const signInWithSeparateTab = async ({ separateTabUrl }: { separateTabUrl: string }): Promise<void> => {
+  const authWithSeparateTab = async ({ separateTabUrl }: { separateTabUrl: string }): Promise<void> => {
     return new Promise((resolve, reject) => {
       let intervalHandle: any = null
       const childWindow = window.open(separateTabUrl, "_blank")
@@ -143,7 +143,7 @@ export function AuthKitProvider(props: AuthKitProviderProps) {
     <Context.Provider value={{ 
       ...client, 
       ...state,
-      signInWithSeparateTab,
+      authWithSeparateTab,
       refreshClient,
     }}>
       {children}
