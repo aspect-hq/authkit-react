@@ -68,7 +68,9 @@ export function AuthKitProvider(props: AuthKitProviderProps) {
   const signInWithSeparateTab = async ({ separateTabUrl }: { separateTabUrl: string }): Promise<void> => {
     return new Promise((resolve, reject) => {
       let intervalHandle: any = null
+      console.log("SIGN IN WITH SEPARATE TAB", separateTabUrl)
       const childWindow = window.open(separateTabUrl, "_blank")
+      console.log("CHILD WINDOW", childWindow)
   
       const handleChildMessage = async (e: MessageEvent) => {
         console.log("HANDLE CHILD MESSAGE", e, childWindow)
@@ -91,6 +93,7 @@ export function AuthKitProvider(props: AuthKitProviderProps) {
       if (childWindow) {
         intervalHandle = setInterval(() => {
           if (childWindow?.closed) {
+            console.log("CHILD WINDOW CLOSED")
             clearInterval(intervalHandle)
             window.removeEventListener("message", handleChildMessage)
             reject()
