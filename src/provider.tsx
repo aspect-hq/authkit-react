@@ -68,22 +68,17 @@ export function AuthKitProvider(props: AuthKitProviderProps) {
   const signInWithSeparateTab = async ({ separateTabUrl }: { separateTabUrl: string }): Promise<void> => {
     return new Promise((resolve, reject) => {
       let intervalHandle: any = null
-      console.log("SIGN IN WITH SEPARATE TAB", separateTabUrl)
       const childWindow = window.open(separateTabUrl, "_blank")
-      console.log("CHILD WINDOW", childWindow)
   
       const handleChildMessage = async (e: MessageEvent) => {
-        console.log("HANDLE CHILD MESSAGE", e, childWindow, e.origin, window.location.origin, e.data.type)
         if (e.origin !== window.location.origin) return
         if (e.data.type !== "WORKOS_AUTH_SUCCESS") return 
         if (!childWindow) return 
-
-        console.log("INITIALIZE CLIENT AGAIN")
   
-        await initializeClient()
+        await refreshClient()
   
         clearInterval(intervalHandle)
-        // childWindow.close()
+        childWindow.close()
   
         window.removeEventListener("message", handleChildMessage)
   
@@ -93,7 +88,6 @@ export function AuthKitProvider(props: AuthKitProviderProps) {
       if (childWindow) {
         intervalHandle = setInterval(() => {
           if (childWindow?.closed) {
-            console.log("CHILD WINDOW CLOSED")
             clearInterval(intervalHandle)
             window.removeEventListener("message", handleChildMessage)
             reject()
@@ -107,8 +101,7 @@ export function AuthKitProvider(props: AuthKitProviderProps) {
     })
   }
 
-  const initializeClient = () => {
-    console.log("INITIALIZE CLIENT 1")
+  const refreshClient = () => {
     createClient(clientId, {
       apiHostname,
       port,
@@ -138,7 +131,7 @@ export function AuthKitProvider(props: AuthKitProviderProps) {
     setState(initialState);
 
     const timeoutId = setTimeout(() => {
-      initializeClient();
+      refreshClient();
     });
 
     return () => {
@@ -151,6 +144,7 @@ export function AuthKitProvider(props: AuthKitProviderProps) {
       ...client, 
       ...state,
       signInWithSeparateTab,
+      refreshClient,
     }}>
       {children}
     </Context.Provider>

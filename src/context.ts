@@ -6,6 +6,7 @@ import { State, initialState } from "./state";
 
 export interface ContextValue extends Client, State {
   signInWithSeparateTab: (options: { separateTabUrl: string }) => Promise<void>;
+  refreshClient: () => void;
 }
 
 export const Context = React.createContext<ContextValue>(
