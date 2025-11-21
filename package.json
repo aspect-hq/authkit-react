@@ -1,7 +1,7 @@
 {
-  "name": "@workos-inc/authkit-react",
-  "version": "0.13.0",
-  "description": "AuthKit React SDK",
+  "name": "aspect-authkit-react-fork",
+  "version": "0.1.0",
+  "description": "AuthKit React SDK Fork by Aspect",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
